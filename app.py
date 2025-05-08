@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, redirect, url_for
+from flask import Flask, render_template, request, send_file, redirect
 from werkzeug.utils import secure_filename
 from rembg import remove
 from PIL import Image
@@ -7,7 +7,7 @@ import io
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Max upload size: 16MB
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 # Ensure upload folder exists
@@ -20,11 +20,9 @@ def allowed_file(filename):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Check if the post request has the file part
         if 'image' not in request.files:
             return redirect(request.url)
         file = request.files['image']
-        # If user does not select file, browser may submit an empty part
         if file.filename == '':
             return redirect(request.url)
         if file and allowed_file(file.filename):
@@ -32,15 +30,14 @@ def index():
             input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(input_path)
 
-            # Open the image and remove background
+            # Process image
             with Image.open(input_path) as img:
                 output = remove(img)
                 output_io = io.BytesIO()
                 output.save(output_io, format='PNG')
                 output_io.seek(0)
 
-            # Optionally, delete the uploaded file after processing
-            os.remove(input_path)
+            os.remove(input_path)  # Clean up uploaded file
 
             return send_file(output_io, mimetype='image/png', as_attachment=True, download_name='no-bg.png')
     return render_template('index.html')
