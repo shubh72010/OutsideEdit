@@ -10,11 +10,13 @@
         <h1>OutsideEdit</h1>
         <p>Effortlessly remove backgrounds from your images.</p>
         <div class="tile">
-            <form method="post" enctype="multipart/form-data">
-                <input type="file" name="image" accept="image/png, image/jpeg" required>
+            <form id="upload-form" method="post" enctype="multipart/form-data">
+                <input type="file" name="image" id="image-input" accept="image/png, image/jpeg" required>
                 <button type="submit">Remove Background</button>
             </form>
+            <div id="loading" style="display:none;">Processing...</div>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
