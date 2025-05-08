@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OutsideEdit - Background Remover</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>OutsideEdit</h1>
+        <p>Remove backgrounds from your images effortlessly.</p>
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/png, image/jpeg" required>
+            <button type="submit">Remove Background</button>
+        </form>
+    </div>
+</body>
+</html>
