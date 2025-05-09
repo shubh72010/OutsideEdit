@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, send_file, redirect, flash
 from werkzeug.utils import secure_filename
-from rembg import remove, new_session
+from rembg import remove
 from PIL import Image
 from io import BytesIO
 
@@ -16,9 +16,6 @@ MAX_SIZE_MB = 5  # Maximum allowed file size (5MB)
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-
-# Initialize rembg session for faster processing
-session = new_session()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -55,10 +52,10 @@ def index():
             img = Image.open(image_file.stream).convert('RGBA')
 
             # Resize the image to reduce processing time
-            img.thumbnail((512, 512))  # Resize to 512x512 max (you can adjust this)
+            img.thumbnail((256, 256))  # Resize to 256x256 max (you can adjust this)
 
-            # Remove background using rembg with session
-            result = remove(img, session=session)
+            # Remove background using rembg (loading the model temporarily)
+            result = remove(img)
 
             # Save output
             output_path = os.path.join(OUTPUT_FOLDER, f"no_bg_{filename}")
