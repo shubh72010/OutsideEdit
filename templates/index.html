@@ -1,22 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>OutsideEdit - Background Remover</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8" />
+  <title>Background Remover</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fafafa;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #7b2cbf;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #7b2cbf;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #5a189a;
+    }
+
+    .loader {
+      margin: 20px auto;
+      border: 6px solid #eee;
+      border-top: 6px solid #7b2cbf;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>OutsideEdit</h1>
-        <p>Effortlessly remove backgrounds from your images.</p>
-        <div class="tile">
-            <form id="upload-form" method="post" enctype="multipart/form-data">
-                <input type="file" name="image" id="image-input" accept="image/png, image/jpeg" required>
-                <button type="submit">Remove Background</button>
-            </form>
-            <div id="loading" style="display:none;">Processing...</div>
-        </div>
-    </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+  <h1>Background Remover</h1>
+  <form id="upload-form">
+    <input type="file" id="file-input" accept="image/*" required />
+    <button type="submit">Remove Background</button>
+  </form>
+
+  <div id="loader" class="loader hidden"></div>
+  <img id="result-img" class="hidden" />
+
+  <script>
+    const form = document.getElementById("upload-form");
+    const fileInput = document.getElementById("file-input");
+    const loader = document.getElementById("loader");
+    const resultImg = document.getElementById("result-img");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const file = fileInput.files[0];
+      if (!file) return alert("Please select an image first.");
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      loader.classList.remove("hidden");
+      resultImg.classList.add("hidden");
+
+      try {
+        const res = await fetch("https://outsideedit.onrender.com/remove-bg", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("Failed to process image");
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        resultImg.src = url;
+        resultImg.classList.remove("hidden");
+      } catch (err) {
+        alert("Error removing background.");
+        console.error(err);
+      } finally {
+        loader.classList.add("hidden");
+      }
+    });
+  </script>
+
 </body>
 </html>
